@@ -1,0 +1,20 @@
+{
+    "name": "openbeelab",
+    "version": "0.0.1",
+    "description": "Openbeelab utility",
+    "preferGlobal": "true",
+    "main": "./lib/openbeelab",
+    "bin": { "openbeelab": "./bin/openbeelab" },
+    "author": "Mathieu ELIE",
+    "keywords": ["openbeelab", "dataviz"],
+    "repository" : {
+        "type": "git",
+        "url": "https://github.com/mathieue/openbeelab.git"
+    },
+    "dependencies": {
+      "elasticsearch": "*",
+      "cradle": "*",
+      "fast-csv": "*"
+    },
+    "engines": { "node": "*" }
+}
