@@ -16,7 +16,9 @@ This will dump in the current directory datas from:
  - meliferopolis
  - meteo wunderdata bordeaux
 
+```
     git clone https://github.com/mathieue/openbeelab.git
     cd openbeelab
     npm install
     node openbeelab.js
+```
