@@ -117,7 +117,7 @@ function meteowunder(from) {
     var hours =  resp.hits.hits;    
     hours.forEach(function(d) {
       var mydate = new Date(d._source.timestamp);
-      csvStream.write({'date': mydate, 'temp':d._source.value  });
+      csvStream.write({'timestamp': mydate, 'temp':d._source.value  });
 
     });
     
