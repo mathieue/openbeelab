@@ -117,7 +117,23 @@ function meteowunder(from) {
     var hours =  resp.hits.hits;    
     hours.forEach(function(d) {
       var mydate = new Date(d._source.timestamp);
-      csvStream.write({'timestamp': mydate, 'temp':d._source.value  });
+      csvStream.write({
+        'timestamp': mydate,
+        'temp':d._source.value,
+        'hum':d._source.hum,
+        'precipm':d._source.precipm,
+        'pressurem':d._source.pressurem,
+        'wspdm':d._source.wspdm,
+        'wdird':d._source.wdird,
+        'vism':d._source.vism,
+        'conds':d._source.conds,
+        'fog':d._source.fog,
+        'rain':d._source.rain,
+        'snow':d._source.snow,
+        'hail':d._source.hail,
+        'thunder':d._source.thunder,
+        'tornado':d._source.tornado
+      });
 
     });
     
