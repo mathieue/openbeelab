@@ -1,4 +1,4 @@
-var data = [4, 8, 15, 16, 23, 42];
+var data = [];
 
 var camera, scene, renderer, chart3d, newBar;
  
@@ -16,9 +16,21 @@ THREE.Object3D.prototype.setAttribute = function (name, value) {
     object[chain[chain.length - 1]] = value;
 }
 
-init();
-update();
-animate();
+d3.csv("3d.csv", function(error, csvdata) {
+  csvdata.forEach(function(d, j) {
+    
+    for (var i = 0; i < 23; i++) {
+        data.push([i, j, d[i] ]);
+    };
+
+  });
+
+  init();
+  update();
+  animate();
+
+});
+
 
 function update () {
     // используем D3 для стоздания 3D столбцов
@@ -26,34 +38,41 @@ function update () {
         .selectAll()
         .data(data)
     .enter().append( newBar )
-        .attr("position.x", function(d, i) { return 30 * (i - 3); })
-        .attr("position.y", function(d, i) { return d; })
-        .attr("scale.y", function(d, i) { return d / 10; })
+        .attr("position.x", function(d, i) {   return 30 * (d[1]- 3); })
+        .attr("position.y", function(d, i) { return d[2] * 4; })
+        .attr("position.z", function(d, i) { return d[0] * 30; })
+        .attr("scale.y", function(d, i) { return d[2] * 4 / 10; })
 }
 
 function init () {
+
+
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
-    camera.position.z = 400;
+    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
+    camera.position.z = 1300;
+    camera.position.x = 400;
+    camera.position.y = -100;
     
     scene = new THREE.Scene();
     
     var light = new THREE.DirectionalLight( 0xffffff );
-    light.position.set( 0, 0, 1 );
+    light.position.set( 0, 0.6, 1 );
     scene.add( light );
 
-    var geometry = new THREE.CubeGeometry( 20, 20, 20 );
+    var geometry = new THREE.CubeGeometry( 28, 28, 28 );
     var material = new THREE.MeshLambertMaterial( {
         color: 0x4682B4, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
     
     // создаём контейнер для 3D гистограммы
     chart3d = new THREE.Object3D();
-  chart3d.rotation.x = 0.6;
-  scene.add( chart3d );
+    chart3d.rotation.x = 0.6;
+    chart3d.rotation.y += 0.57;
+    scene.add( chart3d );
     
+
     // создаём функцию newBar() для D3
     newBar = function() { return new THREE.Mesh( geometry, material ); }
 
@@ -69,12 +88,11 @@ function onWindowResize () {
     
 }
 
+
 function animate () {
     
     requestAnimationFrame( animate );
-    
-    chart3d.rotation.y += 0.01;
-    
+
     renderer.render( scene, camera );
     
 }
