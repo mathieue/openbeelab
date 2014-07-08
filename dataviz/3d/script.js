@@ -1,6 +1,6 @@
 var data = [];
 
-var globalObject, down;
+var controls;
 var camera, scene, renderer, chart3d, newBar;
  
 // эти методы нужны для D3-шных .append() и .selectAll()
@@ -53,6 +53,7 @@ function init () {
     document.body.appendChild( renderer.domElement );
 
     renderer.setClearColorHex( 0xffffff, 1 );
+    
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
     camera.position.z = 1300;
@@ -83,6 +84,8 @@ function init () {
     // создаём функцию newBar() для D3
     newBar = function() { return new THREE.Mesh( geometry, material ); }
 
+    controls = new THREE.OrbitControls(camera);
+
     window.addEventListener( 'resize', onWindowResize, false );
 }
 
@@ -96,31 +99,10 @@ function onWindowResize () {
 }
 
 
-window.onmousedown = function (ev) {
-    down = true;
-    sx = ev.clientX;
-    sy = ev.clientY;
-};
-
-window.onmouseup = function () {
-    down = false;
-};
-
-window.onmousemove = function (ev) {
-    if (down) {
-        var dx = ev.clientX - sx;
-        var dy = ev.clientY - sy;
-        globalObject.rotation.y += dx * 0.01;
-        camera.position.y += dy;
-        sx += dx;
-        sy += dy;
-    }
-}
-
 function animate () {
     
     requestAnimationFrame( animate );
-
+    controls.update();
     renderer.render( scene, camera );
     
 }
