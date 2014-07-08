@@ -1,5 +1,6 @@
 var data = [];
 
+var globalObject, down;
 var camera, scene, renderer, chart3d, newBar;
  
 // эти методы нужны для D3-шных .append() и .selectAll()
@@ -57,10 +58,14 @@ function init () {
     camera.position.y = -100;
     
     scene = new THREE.Scene();
-    
+  
+
+    globalObject = new THREE.Object3D();
+    scene.add(globalObject);
+
     var light = new THREE.DirectionalLight( 0xffffff );
     light.position.set( 0, 0.6, 1 );
-    scene.add( light );
+    globalObject.add( light );
 
     var geometry = new THREE.CubeGeometry( 28, 28, 28 );
     var material = new THREE.MeshLambertMaterial( {
@@ -70,7 +75,7 @@ function init () {
     chart3d = new THREE.Object3D();
     chart3d.rotation.x = 0.6;
     chart3d.rotation.y += 0.57;
-    scene.add( chart3d );
+    globalObject.add( chart3d );
     
 
     // создаём функцию newBar() для D3
@@ -88,6 +93,27 @@ function onWindowResize () {
     
 }
 
+
+window.onmousedown = function (ev) {
+    down = true;
+    sx = ev.clientX;
+    sy = ev.clientY;
+};
+
+window.onmouseup = function () {
+    down = false;
+};
+
+window.onmousemove = function (ev) {
+    if (down) {
+        var dx = ev.clientX - sx;
+        var dy = ev.clientY - sy;
+        globalObject.rotation.y += dx * 0.01;
+        camera.position.y += dy;
+        sx += dx;
+        sy += dy;
+    }
+}
 
 function animate () {
     
