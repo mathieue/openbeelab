@@ -52,6 +52,8 @@ function init () {
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
 
+    renderer.setClearColorHex( 0xffffff, 1 );
+
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
     camera.position.z = 1300;
     camera.position.x = 400;
