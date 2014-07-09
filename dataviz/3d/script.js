@@ -5,9 +5,13 @@ var controls;
 var camera, scene, renderer, chart3d, newBar, plane;
 var totalDays;
 
-var barSize = 20,
- barPadding= 7,
- barScale = 6;
+var barSize = 30,
+ barPadding= 10,
+ barScale = 15;
+
+var labelColor = '#525252',
+    barColor =  '#b92a84',
+    backroundColor = "#f8f9f9";
 
 // эти методы нужны для D3-шных .append() и .selectAll()
 THREE.Object3D.prototype.appendChild = function (c) { this.add(c); return c; };
@@ -233,7 +237,7 @@ function update () {
         .selectAll()
         .data(data)
     .enter().append( newBar )
-        .attr("position.x", function(d, i) {   return toCenteredX(( barSize + barPadding) * (d[1]- 3)); })
+        .attr("position.x", function(d, i) {   return toCenteredX(( barSize + barPadding) * (d[1])); })
         .attr("position.y", function(d, i) { return d[2] * barScale; })
         .attr("position.z", function(d, i) { return toCenteredX( d[0] * (barSize + barPadding) ); })
         .attr("scale.y", function(d, i) { return d[2] * barScale / barSize * 2; });
@@ -252,23 +256,48 @@ function init () {
     
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
-    camera.position.z = 1100;
+    camera.position.z = 1000;
     camera.position.x = 400;
-    camera.position.y = 800;
+    camera.position.y = 2900;
     
     scene = new THREE.Scene();
   
 
+
     globalObject = new THREE.Object3D();
+    globalObject.position.y -= 200;
     scene.add(globalObject);
 
-    var light = new THREE.DirectionalLight( 0xffffff );
-    light.position.set( 0.2, 0.7, 0.8 );
-    globalObject.add( light );
+
+   var light = new THREE.PointLight(0xffffff);
+   light.position.set(10,1500,1000);
+    scene.add( light );
+
+   var light = new THREE.PointLight(0xffffff);
+   light.position.set(-10,-1500,-1000);
+    scene.add( light );
+
+
+   var light = new THREE.PointLight(0xffffff);
+   light.position.set(-10,1500,-1000);
+    scene.add( light );
+
+    // var light = new THREE.DirectionalLight( 0xffffff );
+    // light.position.set( 20000, 70000, 80000 );
+
+
+  // SKYBOX
+  var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+  var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: backroundColor, side: THREE.BackSide } );
+  var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+  scene.add(skyBox);
 
     var geometry = new THREE.CubeGeometry( barSize, barSize, barSize );
+
+
     var material = new THREE.MeshLambertMaterial( {
-        color: 0x4682B4, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
+        color: barColor, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
+    // var material = new THREE.MeshPhongMaterial( { color: barColor} );
     
     // создаём контейнер для 3D гистограммы
     chart3d = new THREE.Object3D();
@@ -280,7 +309,8 @@ function init () {
 
     plane = new THREE.Mesh(
             new THREE.CubeGeometry(1800, 20, 1800),
-            new THREE.MeshPhongMaterial({color:0xFFFFFF}));
+            new THREE.MeshBasicMaterial({color: backroundColor}));
+    
     plane.position.y = -20;
     plane.receiveShadow = true;
     plane.doubleSided = true;
@@ -288,46 +318,52 @@ function init () {
     globalObject.add(plane);
 
 
-     var label = textSprite("Openbeelab beehouse weight over time", {
-      color: "#000",
+    // TITLE
+
+     var label = textSprite("OPENBEELAB BEEHOUSE WEIGHT OVER TIME", {
+      color: labelColor,
       size: 50,
       posY: 30,
-      posX: -100,
-      posZ: 300,
+      posX: 0,
+      posZ: barSize * 18,
      });
      plane.add(label);
 
-    // init hour labels
+
+    // HOUR LABELS
+
     for (var i = 0; i < 24; i++) {
 
         var label = textSprite(i + 'H00', {
-          color: "#000",
+          color: labelColor,
           size: barSize,
           posY: 30,
-          posX: toCenteredX(-130),
+          posX: toCenteredX(-barSize * 3),
           posZ:  toCenteredX(i * (barSize + barPadding)),
         });
         plane.add(label);
 
 
         var label = textSprite(i + 'H00', {
-          color: "#000",
+          color: labelColor,
           size: barSize,
           posY: 30,
-          posX: toCenteredX(totalDays * (barSize + barPadding) -50),
+          posX: toCenteredX(totalDays * (barSize + barPadding) + barSize * 2),
           posZ:  toCenteredX(i * (barSize + barPadding)),
         });
         plane.add(label);
 
     };
 
+
+    // DATE LABELS
     for (var i = 0; i < dates.length; i++) {
         var label = textSprite(dates[i], {
-          color: "#000",
-          size: barSize - 3, 
+          color: labelColor,
+          size: barSize , 
           posY: 30,
-          posX: toCenteredX(( barSize + barPadding) * (i- 3)),
-          posZ: 180,
+          posX: toCenteredX(( barSize + barPadding) * (i)),
+          posZ: barSize * 10,
           rotZ:  Math.PI /2 
         });
         plane.add(label);
@@ -357,7 +393,8 @@ function animate () {
     
     requestAnimationFrame( animate );
 
-    // globalObject.rotation.y -= 0.001;
+    globalObject.rotation.y -= 0.0005;
+    globalObject.rotation.x -= 0.0005;
 
     controls.update();
     renderer.render( scene, camera );
