@@ -8,10 +8,13 @@ var totalDays;
 var materials = [];
 var myscale;
 
-var barSize = 100,
+var barSize = 20,
 textSize = barSize * 0.5,
- barPadding= 5,
- barScale = 10;
+ barPadding= 0,
+ barScale = 2;
+
+// BOUNDS
+var maxX, maxY, maxZ;
 
 var minValue;
 
@@ -70,9 +73,12 @@ d3.csv("3d.csv", function(error, csvdata) {
 
 
 function toCenteredX(x) {
-  return x - (totalDays * (barSize + barPadding) / 2);
+  return x - maxX / 2;
 }
 
+function toCenteredZ(x) {
+  return x - maxZ / 2;
+}
 
 
 function drawXLabel(x, length) {
@@ -236,7 +242,7 @@ for (var i = 0; i < brewer.length; i++) {
     .enter().append( newBar  )
         .attr("position.x", function(d, i) {   return toCenteredX(( barSize + barPadding) * (d[1])); })
         .attr("position.y", function(d, i) { return d[2] * barScale; })
-        .attr("position.z", function(d, i) { return toCenteredX( d[0] * (barSize + barPadding) ); })
+        .attr("position.z", function(d, i) { return toCenteredZ( d[0] * (barSize + barPadding) ); })
         .attr("scale.y", function(d, i) { return d[2] * barScale / barSize * 2; })
         .attr("color", function(d, i) { return  parseFloat(d[2] ) });
 
@@ -246,7 +252,16 @@ for (var i = 0; i < brewer.length; i++) {
 function init () {
 
 
+    // BOUNDS    
+
     minValue = d3.min( data, function(d) { return parseFloat(d[2]); });
+    maxValue = d3.max( data, function(d) { return parseFloat(d[2]); });
+
+    maxX = ( barSize + barPadding) * totalDays;
+    maxY = maxValue * barScale * 2 + barSize / 2;
+    maxZ = 24 * (barSize + barPadding);
+
+    var paddingPlan = barSize * 30;
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -309,13 +324,13 @@ function init () {
     globalObject.add( chart3d );
     
 
-  var width = totalDays * (barSize + barPadding) * 2; 
+  // var width = max; 
 
     plane = new THREE.Mesh(
-            new THREE.CubeGeometry(width, 20, width),
+            new THREE.CubeGeometry(maxX + paddingPlan, 20, maxZ + paddingPlan),
             new THREE.MeshBasicMaterial({color: planeColor}));
 
-    plane.position.y -= 40;
+    // plane.position.y -= 40;
     // plane.position.z += (width / 2);
     // plane.position.x += (width / 2);
     plane.receiveShadow = true;
@@ -323,16 +338,16 @@ function init () {
     plane.name = 'Plane';
     globalObject.add(plane);
 
-
+    // GRID
 
     // TITLE
 
      var label = textSprite("OPENBEELAB BEEHOUSE WEIGHT OVER TIME", {
       color: labelColor,
-      size: (textSize * 2),
-      posY: 1000,
+      size: (textSize * 3),
+      posY: maxY + textSize * 3,
       posX: 0,
-      posZ: (-barSize * 19),
+      posZ: toCenteredZ(0),
      });
 
      label.rotation.x -= Math.PI / 2 * 3;
@@ -348,8 +363,8 @@ function init () {
           color: labelColor,
           size: textSize,
           posY: 30,
-          posX: toCenteredX(-barSize * 3),
-          posZ:  toCenteredX(i * (barSize + barPadding)),
+          posX: toCenteredX(-barSize * 2) ,
+          posZ:  toCenteredZ(i * (barSize + barPadding)),
         });
         plane.add(label);
 
@@ -358,8 +373,8 @@ function init () {
           color: labelColor,
           size: textSize,
           posY: 30,
-          posX: toCenteredX(totalDays * (barSize + barPadding) + barSize * 2),
-          posZ:  toCenteredX(i * (barSize + barPadding)),
+          posX: toCenteredX(maxX + barSize ),
+          posZ:  toCenteredZ(i * (barSize + barPadding)),
         });
         plane.add(label);
 
@@ -373,7 +388,7 @@ function init () {
           size: textSize , 
           posY: 30,
           posX: toCenteredX(( barSize + barPadding) * (i)),
-          posZ: barSize * 7,
+          posZ: toCenteredZ(maxZ + barSize * 2),
           rotZ:  Math.PI /2 
         });
         plane.add(label);
