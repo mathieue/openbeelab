@@ -5,13 +5,20 @@ var controls;
 var camera, scene, renderer, chart3d, newBar, plane;
 var totalDays;
 
-var barSize = 30,
- barPadding= 10,
- barScale = 15;
+var materials = [];
+var myscale;
+
+var barSize = 100,
+textSize = barSize * 0.5,
+ barPadding= 5,
+ barScale = 10;
+
+var minValue;
 
 var labelColor = '#525252',
     barColor =  '#b92a84',
-    backroundColor = "#f8f9f9";
+    backroundColor = "#f8f9f9",
+    planeColor = "#eee";
 
 // эти методы нужны для D3-шных .append() и .selectAll()
 THREE.Object3D.prototype.appendChild = function (c) { this.add(c); return c; };
@@ -21,10 +28,21 @@ THREE.Object3D.prototype.querySelectorAll = function () { return []; };
 THREE.Object3D.prototype.setAttribute = function (name, value) {
     var chain = name.split('.');
     var object = this;
-    for (var i = 0; i < chain.length - 1; i++) {
-        object = object[chain[i]];
+
+    if (name == 'color') {
+       // this.material.opacity = 0.5;
+       var index = Math.ceil(myscale(value));
+       if (index) {
+       this.material = materials[index]; ;
+       }
+       
     }
-    object[chain[chain.length - 1]] = value;
+    else {
+      for (var i = 0; i < chain.length - 1; i++) {
+        object = object[chain[i]];
+      }
+      object[chain[chain.length - 1]] = value;    
+    }
 }
 
 d3.csv("3d.csv", function(error, csvdata) {
@@ -112,47 +130,6 @@ function alignPlane(plane, horizontalAlign, verticalAlign) {
 
 
 
-function textSprite(text, params) {
-    var font = "Helvetica",
-        size = 18,
-        color = "#676767";
-
-    font = "bold " + size + "px " + font;
-
-    var canvas = document.createElement('canvas');
-    var context = canvas.getContext('2d');
-    context.font = font;
-
-    // get size data (height depends only on font size)
-    var metrics = context.measureText(text),
-        textWidth = metrics.width;
-
-    canvas.width = textWidth + 3;
-    canvas.height = size + 3;
-
-    context.font = font;
-    context.fillStyle = color;
-    context.fillText(text, 0, size + 3);
-
-    // canvas contents will be used for a texture
-    var texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-
-    var mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(canvas.width, canvas.height),
-    new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide
-    }));
-
-    console.log(canvas.width + 'x' + canvas.height);
-    console.log(texture);
-    console.log(mesh);
-
-    return mesh;
-}
-
-
 function drawHourLabel(hour) {
   var canvas = document.createElement('canvas');
   var size = 256; // CHANGED
@@ -181,11 +158,11 @@ function drawHourLabel(hour) {
 
 
 function textSprite(text, params) {
-    var font = "Helvetica",
+    var font = "Arial",
         size = params.size,
         color = params.color;
 
-    font = "bold " + size + "px " + font;
+    font = " " + size + "px " + font;
 
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
@@ -231,22 +208,45 @@ function textSprite(text, params) {
 }
 
 
+
 function update () {
-    // используем D3 для стоздания 3D столбцов
+
+var brewer = colorbrewer.Oranges[9];
+
+  var maxy = d3.max( data, function(d) { return parseFloat(d[2]); });
+  var miny = d3.min( data, function(d) { return parseFloat(d[2]); });
+
+
+
+
+  myscale = d3.scale.linear()
+    .domain([miny, maxy])
+    .range([0, brewer.length - 1]);
+
+
+for (var i = 0; i < brewer.length; i++) {
+  var material = new THREE.MeshLambertMaterial( {color: brewer[i] , shading: THREE.FlatShading, vertexColors: THREE.VertexColors } );
+  materials.push(material) ;
+ }                     
+
+
     d3.select( chart3d )
         .selectAll()
         .data(data)
-    .enter().append( newBar )
+    .enter().append( newBar  )
         .attr("position.x", function(d, i) {   return toCenteredX(( barSize + barPadding) * (d[1])); })
         .attr("position.y", function(d, i) { return d[2] * barScale; })
         .attr("position.z", function(d, i) { return toCenteredX( d[0] * (barSize + barPadding) ); })
-        .attr("scale.y", function(d, i) { return d[2] * barScale / barSize * 2; });
+        .attr("scale.y", function(d, i) { return d[2] * barScale / barSize * 2; })
+        .attr("color", function(d, i) { return  parseFloat(d[2] ) });
 
 
 }
 
 function init () {
 
+
+    minValue = d3.min( data, function(d) { return parseFloat(d[2]); });
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -256,16 +256,16 @@ function init () {
     
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
-    camera.position.z = 1000;
+    camera.position.z = 1800;
     camera.position.x = 400;
-    camera.position.y = 2900;
+    camera.position.y = 1800;
     
     scene = new THREE.Scene();
   
 
 
     globalObject = new THREE.Object3D();
-    globalObject.position.y -= 200;
+    // globalObject.position.y -= 200;
     scene.add(globalObject);
 
 
@@ -287,6 +287,9 @@ function init () {
 
 
   // SKYBOX
+
+
+
   var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
   var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: backroundColor, side: THREE.BackSide } );
   var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
@@ -306,27 +309,34 @@ function init () {
     globalObject.add( chart3d );
     
 
+  var width = totalDays * (barSize + barPadding) * 2; 
 
     plane = new THREE.Mesh(
-            new THREE.CubeGeometry(1800, 20, 1800),
-            new THREE.MeshBasicMaterial({color: backroundColor}));
-    
-    plane.position.y = -20;
+            new THREE.CubeGeometry(width, 20, width),
+            new THREE.MeshBasicMaterial({color: planeColor}));
+
+    plane.position.y -= 40;
+    // plane.position.z += (width / 2);
+    // plane.position.x += (width / 2);
     plane.receiveShadow = true;
     plane.doubleSided = true;
     plane.name = 'Plane';
     globalObject.add(plane);
 
 
+
     // TITLE
 
      var label = textSprite("OPENBEELAB BEEHOUSE WEIGHT OVER TIME", {
       color: labelColor,
-      size: 50,
-      posY: 30,
+      size: (textSize * 2),
+      posY: 1000,
       posX: 0,
-      posZ: barSize * 18,
+      posZ: (-barSize * 19),
      });
+
+     label.rotation.x -= Math.PI / 2 * 3;
+
      plane.add(label);
 
 
@@ -336,7 +346,7 @@ function init () {
 
         var label = textSprite(i + 'H00', {
           color: labelColor,
-          size: barSize,
+          size: textSize,
           posY: 30,
           posX: toCenteredX(-barSize * 3),
           posZ:  toCenteredX(i * (barSize + barPadding)),
@@ -346,7 +356,7 @@ function init () {
 
         var label = textSprite(i + 'H00', {
           color: labelColor,
-          size: barSize,
+          size: textSize,
           posY: 30,
           posX: toCenteredX(totalDays * (barSize + barPadding) + barSize * 2),
           posZ:  toCenteredX(i * (barSize + barPadding)),
@@ -360,10 +370,10 @@ function init () {
     for (var i = 0; i < dates.length; i++) {
         var label = textSprite(dates[i], {
           color: labelColor,
-          size: barSize , 
+          size: textSize , 
           posY: 30,
           posX: toCenteredX(( barSize + barPadding) * (i)),
-          posZ: barSize * 10,
+          posZ: barSize * 7,
           rotZ:  Math.PI /2 
         });
         plane.add(label);
@@ -372,7 +382,8 @@ function init () {
     // drawHourLabel(10);
 
     // создаём функцию newBar() для D3
-    newBar = function() { return new THREE.Mesh( geometry, material ); }
+    newBar = function() { return new THREE.Mesh( geometry,    new THREE.MeshLambertMaterial( {
+        color: barColor, shading: THREE.FlatShading, vertexColors: THREE.VertexColors } ) ); }
 
     controls = new THREE.OrbitControls(camera);
 
@@ -393,8 +404,8 @@ function animate () {
     
     requestAnimationFrame( animate );
 
-    globalObject.rotation.y -= 0.0005;
-    globalObject.rotation.x -= 0.0005;
+    globalObject.rotation.y -= 0.001;
+    // globalObject.rotation.x -= 0.0005;
 
     controls.update();
     renderer.render( scene, camera );
