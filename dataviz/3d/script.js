@@ -8,8 +8,9 @@ var totalDays;
 var materials = [];
 var myscale;
 
-var barSize = 20,
+var barSize = 28,
 textSize = barSize * 0.5,
+textLabelTileSize = textSize * 4,
  barPadding= 0,
  barScale = 5;
 
@@ -353,6 +354,40 @@ function init () {
      label.rotation.x -= Math.PI / 2 * 3;
 
      plane.add(label);
+
+
+    // TITLE DAYS
+     var label = textSprite("DAYS", {
+      color: labelColor,
+          size: textLabelTileSize , 
+          posY: 0,
+          posX: toCenteredX(( barSize + barPadding) * (dates.length / 2)),
+          posZ: toCenteredZ(maxZ + paddingPlan - textLabelTileSize)
+          // rotZ:  Math.PI /2 
+        });
+      plane.add(label);
+
+    // TITLE HOURS
+     var label = textSprite("HOURS", {
+      color: labelColor,
+          size: textLabelTileSize , 
+          posY: 0,
+          posX: toCenteredX(- paddingPlan) ,
+          posZ: toCenteredZ(12 * (barSize + barPadding)),
+         rotZ:  Math.PI /2 
+        });
+      plane.add(label);
+
+     var label = textSprite("HOURS", {
+      color: labelColor,
+          size: textLabelTileSize , 
+          posY: 0,
+          posX: toCenteredX(maxX + paddingPlan - textLabelTileSize) ,
+          posZ: toCenteredZ(12 * (barSize + barPadding)),
+         rotZ:  Math.PI /2 
+        });
+      plane.add(label);
+
 
 
     // HOUR LABELS
