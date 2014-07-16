@@ -18,3 +18,5 @@ coverage
 queries.d
 other-conf.d
 config.js
+
+.ipynb_*
