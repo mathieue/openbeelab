@@ -345,7 +345,7 @@ function init () {
 
      var label = textSprite("OPENBEELAB BEEHOUSE WEIGHT OVER TIME", {
       color: labelColor,
-      size: (textSize * 3),
+      size: (textSize * 4),
       posY: maxY + textSize * 3,
       posX: 0,
       posZ: toCenteredZ(0),
