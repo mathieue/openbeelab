@@ -11,14 +11,14 @@ var myscale;
 var barSize = 20,
 textSize = barSize * 0.5,
  barPadding= 0,
- barScale = 2;
+ barScale = 4;
 
 // BOUNDS
 var maxX, maxY, maxZ;
 
 var minValue;
 
-var labelColor = '#525252',
+var labelColor = '#000000',
     barColor =  '#b92a84',
     backroundColor = "#f8f9f9",
     planeColor = "#eee";
@@ -270,10 +270,10 @@ function init () {
     renderer.setClearColorHex( 0xffffff, 1 );
     
 
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
-    camera.position.z = maxZ * 1.3;
+    camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight , 1, 50000 );
+    camera.position.z = maxZ * 1.5;
     camera.position.x = maxX / 2;
-    camera.position.y = maxY * 2;
+    camera.position.y = maxY * 2.7;
     
     scene = new THREE.Scene();
   
