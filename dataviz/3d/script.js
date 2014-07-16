@@ -261,7 +261,7 @@ function init () {
     maxY = maxValue * barScale * 2 + barSize / 2;
     maxZ = 24 * (barSize + barPadding);
 
-    var paddingPlan = barSize * 30;
+    var paddingPlan = barSize * 10;
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -271,9 +271,9 @@ function init () {
     
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 50000 );
-    camera.position.z = 1800;
-    camera.position.x = 400;
-    camera.position.y = 1800;
+    camera.position.z = maxZ * 1.3;
+    camera.position.x = maxX / 2;
+    camera.position.y = maxY * 2;
     
     scene = new THREE.Scene();
   
@@ -422,7 +422,7 @@ function animate () {
     globalObject.rotation.y -= 0.001;
     // globalObject.rotation.x -= 0.0005;
 
-    controls.update();
+    // controls.update();
     renderer.render( scene, camera );
     
 }
