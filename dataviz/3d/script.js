@@ -266,7 +266,7 @@ function init () {
 
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
+    document.getElementById('3dviz').appendChild( renderer.domElement );
 
     renderer.setClearColorHex( 0xffffff, 1 );
     
@@ -286,11 +286,11 @@ function init () {
 
 
    var light = new THREE.PointLight(0xffffff);
-   light.position.set(10,1500,1000);
+   light.position.set(100,1500,1000);
     scene.add( light );
 
    var light = new THREE.PointLight(0xffffff);
-   light.position.set(-10,-1500,-1000);
+   light.position.set(-5000,-1500,-1000);
     scene.add( light );
 
 
