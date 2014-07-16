@@ -11,7 +11,7 @@ var myscale;
 var barSize = 20,
 textSize = barSize * 0.5,
  barPadding= 0,
- barScale = 4;
+ barScale = 5;
 
 // BOUNDS
 var maxX, maxY, maxZ;
@@ -273,7 +273,7 @@ function init () {
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight , 1, 50000 );
     camera.position.z = maxZ * 1.5;
     camera.position.x = maxX / 2;
-    camera.position.y = maxY * 2.7;
+    camera.position.y = maxY * 2.1;
     
     scene = new THREE.Scene();
   
